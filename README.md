@@ -4,15 +4,9 @@ All Scripts Are Free To Use And Modify
 
 ## Fitur
 
-- Command handler modular
-- Lotto system dengan tombol interaktif
-- Trade uang, item, dan properti antar pemain
-- Faction dan sistem ID Torn City
+- 
 
-## Instalasi
+## Script Request
 
-1. Clone repository:
+Contact Enma [3604249] or enma.id (discord) for more info
 
-```bash
-git clone https://github.com/username/repo-name.git
-cd repo-name
