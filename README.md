@@ -2,9 +2,9 @@
 
 All Scripts Are Free To Use And Modify
 
-## Fitur
+## Script List
 
-- 
+- Torn Regen Timer
 
 ## Script Request
 
