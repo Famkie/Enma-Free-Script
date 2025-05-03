@@ -1,8 +1,6 @@
-# My Awesome Project
+# Enma Showcase
 
-Deskripsi singkat tentang project ini. Misalnya:
-
-> Sebuah bot Discord dengan fitur lotto, trade, dan manajemen faction, terinspirasi dari Torn City.
+All Scripts Are Free To Use And Modify
 
 ## Fitur
 
