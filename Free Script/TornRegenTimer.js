@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Torn Stat Regen Timer (Server Timestamp Synced)
 // @namespace    torn.regen.timer.timestamp
-// @version      2.2
+// @version      2.9
 // @description  Tampilkan waktu hingga energy, nerve, dan happy penuh secara real-time, disinkronkan dengan server timestamp API
-// @author       Enma
+// @author       Enma [3604249]
 // @match        https://www.torn.com/*
 // @grant        none
 // ==/UserScript==
