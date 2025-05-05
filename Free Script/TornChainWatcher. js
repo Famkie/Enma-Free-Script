@@ -1,0 +1,123 @@
+// ==UserScript==
+// @name         Torn Chain Status
+// @namespace    torn.chain.status
+// @version      2.2
+// @description  Displays live chain status with synced timeout. 
+// @author       Enma [3604249]
+// @match        https://www.torn.com/*
+// @grant        none
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  const apiKey = 'API_KEY_DISINI'; // Ganti dengan API key Anda
+  const visualOffset = 30;
+  const fastOffset = 10; // percepatan 10 detik
+
+  const box = document.createElement('div');
+  box.style.position = 'fixed';
+  box.style.top = '20px';
+  box.style.right = '20px';
+  box.style.zIndex = '99999';
+  box.style.background = 'rgba(0, 0, 0, 0.4)';
+  box.style.color = '#fff';
+  box.style.padding = '10px';
+  box.style.borderRadius = '10px';
+  box.style.fontSize = '12px';
+  box.style.fontFamily = 'Arial, sans-serif';
+  box.style.boxShadow = '0 0 5px rgba(0,0,0,0.2)';
+  box.style.minWidth = '220px';
+  box.style.cursor = 'move';
+  box.style.pointerEvents = 'none';
+  box.style.userSelect = 'none';
+  box.innerText = 'Loading chain status...';
+  document.body.appendChild(box);
+
+  let isDragging = false;
+  let offsetX, offsetY;
+
+  box.addEventListener('mousedown', function (e) {
+    isDragging = true;
+    offsetX = e.clientX - box.offsetLeft;
+    offsetY = e.clientY - box.offsetTop;
+    box.style.opacity = '0.8';
+    box.style.pointerEvents = 'auto';
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (isDragging) {
+      box.style.left = `${e.clientX - offsetX}px`;
+      box.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', function () {
+    if (isDragging) {
+      isDragging = false;
+      box.style.opacity = '1';
+      box.style.pointerEvents = 'none';
+    }
+  });
+
+  let current = 0;
+  let max = 0;
+  let modifier = 0;
+  let timeoutServerEnd = 0;
+  let localServerTimeOffset = 0;
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m ${s.toString().padStart(2, '0')}s`;
+  }
+
+  function updateDisplay() {
+    const now = Date.now();
+    const serverNow = now + localServerTimeOffset;
+    const remaining = Math.max(0, Math.floor((timeoutServerEnd - serverNow) / 1000));
+
+    let content = `<strong>Chain Status</strong><br>`;
+    content += `Current: ${current}<br>`;
+    content += `Max: ${max}<br>`;
+    content += `Modifier: x${modifier.toFixed(2)}<br>`;
+    content += `Timeout: ${remaining > 0 ? formatTime(remaining) : 'Inactive'}<br>`;
+    box.innerHTML = content;
+  }
+
+  async function fetchChainStatus() {
+    try {
+      const localFetchTime = Date.now();
+
+      const [chainRes, timeRes] = await Promise.all([
+        fetch(`https://api.torn.com/faction/?selections=chain&key=${apiKey}`),
+        fetch(`https://api.torn.com/torn/?selections=timestamp&key=${apiKey}`)
+      ]);
+
+      const chainData = await chainRes.json();
+      const timeData = await timeRes.json();
+
+      if (chainData.error) throw new Error(chainData.error.error);
+      if (timeData.error) throw new Error(timeData.error.error);
+
+      const serverTimestamp = timeData.timestamp * 1000;
+      const localNow = Date.now();
+      localServerTimeOffset = serverTimestamp - localNow;
+
+      current = chainData.chain.current;
+      max = chainData.chain.max;
+      modifier = chainData.chain.modifier;
+
+      // Kurangi visual offset dan percepatan 10 detik
+      timeoutServerEnd = serverTimestamp + Math.max(0, (chainData.chain.timeout - visualOffset - fastOffset) * 1000);
+
+      updateDisplay();
+    } catch (err) {
+      box.innerHTML = `<span style="color: red">Error: ${err.message}</span>`;
+    }
+  }
+
+  fetchChainStatus();
+  setInterval(fetchChainStatus, 10000);
+  setInterval(updateDisplay, 1000);
+})();
